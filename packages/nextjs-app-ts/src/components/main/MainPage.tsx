@@ -25,6 +25,7 @@ import {
   TARGET_NETWORK_INFO,
 } from '~~/config/app.config';
 
+import { Access } from "../views";
 /** ********************************
  * ⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️
  * See ./config/app.config.ts for configuration, such as TARGET_NETWORK
@@ -91,6 +92,11 @@ export const MainPage: FC<IMainPageProps> = (props) => {
   const yourContract = useAppContracts('YourContract', ethersAppContext.chainId);
   const yourNFT = useAppContracts('YourNFT', ethersAppContext.chainId);
   const mainnetDai = useAppContracts('DAI', NETWORKS.mainnet.chainId);
+  const accessTests = useAppContracts('AccessTests', NETWORKS.mainnet.chainId);
+
+  // const accessTests = "Test";
+
+
 
   // keep track of a variable from the contract in the local React state:
   const [purpose, update] = useContractReader(
@@ -140,6 +146,13 @@ export const MainPage: FC<IMainPageProps> = (props) => {
             contract={yourNFT}
             mainnetAdaptor={scaffoldAppProviders.mainnetAdaptor}
             blockExplorer={scaffoldAppProviders.targetNetwork.blockExplorer}></GenericContract>
+        ),
+      },
+      {
+        name: 'Access-Tests',
+        content: (
+          <Access>
+          </Access>
         ),
       },
       {

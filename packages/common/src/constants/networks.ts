@@ -24,7 +24,7 @@ export const NETWORKS = {
     name: 'kovan',
     color: '#7003DD',
     chainId: 42,
-    url: `https://kovan.infura.io/v3/${INFURA_ID}`,
+    url: `https://kovan.infura.io/v3/b4040abc6812490c8992a598c75f3436`,
     blockExplorer: 'https://kovan.etherscan.io/',
     faucet: 'https://gitter.im/kovan-testnet/faucet', // https://faucet.kovan.network/
   },
@@ -32,7 +32,7 @@ export const NETWORKS = {
     name: 'rinkeby',
     color: '#e0d068',
     chainId: 4,
-    url: `https://rinkeby.infura.io/v3/${INFURA_ID}`,
+    url: `https://rinkeby.infura.io/v3/b4040abc6812490c8992a598c75f3436`,
     faucet: 'https://faucet.rinkeby.io/',
     blockExplorer: 'https://rinkeby.etherscan.io/',
   },

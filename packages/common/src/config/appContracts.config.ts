@@ -32,6 +32,12 @@ export const appContractsConfig = () => {
         hardhatContractsJson
       ),
 
+      AccessTests: createConnectorForHardhatContract(
+        'AccessTests',
+        hardhatContracts.AccessTests__factory,
+        hardhatContractsJson
+      ),
+
       YourNFT: createConnectorForHardhatContract('YourNFT', hardhatContracts.YourNFT__factory, hardhatContractsJson),
 
       // --------------------------------------------------
