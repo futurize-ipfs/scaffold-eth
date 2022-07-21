@@ -28,7 +28,7 @@ export async function encryptString(
   console.log("encryptedString", encryptedString);
 
   const encryptedSymmetricKey = await window.litNodeClient.saveEncryptionKey({
-    accessControlConditions,
+    evmContractConditions: accessControlConditions,
     symmetricKey,
     authSig,
     chain,
@@ -99,7 +99,7 @@ export async function decryptMessage(
   // const chain = 'rinkeby';
 
   const symmetricKey = await window.litNodeClient.getEncryptionKey({
-    accessControlConditions,
+    evmContractConditions: accessControlConditions,
     toDecrypt: encryptedSymmetricKey,
     chain,
     authSig,
