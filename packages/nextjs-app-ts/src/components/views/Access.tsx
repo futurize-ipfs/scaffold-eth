@@ -85,23 +85,12 @@ export const Access: FC<AccessProps> = (props) => {
     // Here we define how the conditions to access the message
     const accessControlConditions = [
         {
-            contractAddress: '0xDcEf40f2BfB3B48b40fb31c7B037360378902939',
+            contractAddress: '0x8F00e4b533970Ae8E32b333A41f4961c27E2c619',
             functionName: "hasAccessFunction",
             functionParams: [
                 ':userAddress', "teststring"
             ],
             functionAbi: {
-                type: "function",
-                stateMutability: "pure",
-                // constant: true,
-                outputs: [
-                    {
-                        internalType: "bool",
-                        name: "",
-                        type: "bool",
-                    },
-                ],
-                name: "hasAccessFunction",
                 inputs: [
                     {
                         internalType: "address",
@@ -114,6 +103,16 @@ export const Access: FC<AccessProps> = (props) => {
                         type: "string",
                     },
                 ],
+                name: "hasAccessFunction",
+                outputs: [
+                    {
+                        internalType: "uint256",
+                        name: "",
+                        type: "uint256",
+                    },
+                ],
+                stateMutability: "pure",
+                type: "function",
             },
             chain,
             returnValueTest: {
