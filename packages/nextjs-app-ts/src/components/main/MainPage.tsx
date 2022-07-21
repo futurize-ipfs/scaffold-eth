@@ -8,6 +8,8 @@ import { asEthersAdaptor } from 'eth-hooks/functions';
 import Head from 'next/head';
 import React, { FC, ReactElement } from 'react';
 
+import { Access, IPFS } from '../views';
+
 import { MainPageFooter, MainPageHeader, createTabsAndPages, TContractPageList } from '.';
 
 import { useLoadAppContracts, useConnectAppContracts, useAppContracts } from '~common/components/context';
@@ -25,7 +27,6 @@ import {
   TARGET_NETWORK_INFO,
 } from '~~/config/app.config';
 
-import { Access } from "../views";
 /** ********************************
  * ⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️⛳️
  * See ./config/app.config.ts for configuration, such as TARGET_NETWORK
@@ -96,8 +97,6 @@ export const MainPage: FC<IMainPageProps> = (props) => {
 
   // const accessTests = "Test";
 
-
-
   // keep track of a variable from the contract in the local React state:
   const [purpose, update] = useContractReader(
     yourContract,
@@ -150,10 +149,11 @@ export const MainPage: FC<IMainPageProps> = (props) => {
       },
       {
         name: 'Access-Tests',
-        content: (
-          <Access>
-          </Access>
-        ),
+        content: <Access></Access>,
+      },
+      {
+        name: 'IPFS-Upload-Test',
+        content: <IPFS />,
       },
       {
         name: 'Mainnet-Dai',

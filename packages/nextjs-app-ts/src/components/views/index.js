@@ -1,1 +1,2 @@
-export { Access } from "./Access";
+export { Access } from './Access';
+export { IPFS } from './IPFS';
