@@ -85,33 +85,40 @@ export const Access: FC<AccessProps> = (props) => {
     // Here we define how the conditions to access the message
     const accessControlConditions = [
         {
-            contractAddress: '0x0982746fdA0e4f17616FE4E184e9a6e0C235E8E0',
-            functionName: "hasAccess",
+            contractAddress: '0xDcEf40f2BfB3B48b40fb31c7B037360378902939',
+            functionName: "hasAccessFunction",
             functionParams: [
-                ':userAddress'
+                ':userAddress', "teststring"
             ],
             functionAbi: {
-                inputs: [
-                    {
-                        "internalType": "address",
-                        "name": "",
-                        "type": "address"
-                    }
-                ],
-                name: "hasAccess",
+                type: "function",
+                stateMutability: "pure",
+                // constant: true,
                 outputs: [
                     {
-                        "internalType": "string",
-                        "name": "",
-                        "type": "string"
-                    }
+                        internalType: "bool",
+                        name: "",
+                        type: "bool",
+                    },
                 ],
-                "stateMutability": "view",
-                "type": "function",
+                name: "hasAccessFunction",
+                inputs: [
+                    {
+                        internalType: "address",
+                        name: "accessAddress",
+                        type: "address",
+                    },
+                    {
+                        internalType: "string",
+                        name: "encryptedMessage",
+                        type: "string",
+                    },
+                ],
             },
             chain,
             returnValueTest: {
-                comparator: '>=',
+                key: "",
+                comparator: '>',
                 value: '0'
             }
         }
