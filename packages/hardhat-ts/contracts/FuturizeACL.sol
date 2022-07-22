@@ -20,6 +20,6 @@ contract FuturizeACL {
     }
 
     function hasAccess(bytes calldata ipfsCid, address userToCheck) public view returns (bool)  {
-        return accessList[ipfsCid][userToCheck];
+        return accessList[ipfsCid][userToCheck] || owners[ipfsCid] == userToCheck;
     }
 }
