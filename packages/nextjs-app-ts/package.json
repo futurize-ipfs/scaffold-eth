@@ -52,6 +52,7 @@
     "http-browserify": "^1.7.0",
     "ipfs-http-client": "^54.0.2",
     "lit-js-sdk": "^1.1.198",
+    "multiformats": "^9.7.0",
     "next": "12.1.6",
     "pretty-time": "^1.1.0",
     "process": "^0.11.10",

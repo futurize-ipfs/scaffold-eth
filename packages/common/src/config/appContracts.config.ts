@@ -38,6 +38,12 @@ export const appContractsConfig = () => {
         hardhatContractsJson
       ),
 
+      FuturizeACL: createConnectorForHardhatContract(
+        'FuturizeACL',
+        hardhatContracts.FuturizeACL__factory,
+        hardhatContractsJson
+      ),
+
       YourNFT: createConnectorForHardhatContract('YourNFT', hardhatContracts.YourNFT__factory, hardhatContractsJson),
 
       // --------------------------------------------------

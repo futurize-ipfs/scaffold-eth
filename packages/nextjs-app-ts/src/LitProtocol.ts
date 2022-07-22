@@ -9,9 +9,17 @@ export async function startClient() {
   window.litNodeClient = client;
 }
 
+type AuthSig = {
+  sig: string;
+  derivedVia: string;
+  signedMessage: string;
+  address: string;
+};
+
 // Function to make a signature
-export async function checkAndSignAuthMessage(chain) {
-  const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain: chain });
+export async function checkAndSignAuthMessage(chain: string): Promise<AuthSig> {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+  const authSig = (await LitJsSdk.checkAndSignAuthMessage({ chain: chain })) as AuthSig;
 
   return authSig;
 }
@@ -39,6 +47,29 @@ export async function encryptString(
     symmetricKey,
     encryptedString,
   };
+}
+
+export async function zipEncryptFiles(files: File[]): Promise<{ encryptedZip: Blob; symmetricKey: Uint8Array }> {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+  return (await LitJsSdk.zipAndEncryptFiles(files)) as { encryptedZip: Blob; symmetricKey: Uint8Array };
+}
+
+export async function saveEncryptionKey(
+  symmetricKey: Uint8Array,
+  chain: string,
+  accessControlConditions: any
+): Promise<Uint8Array> {
+  const authSig = await checkAndSignAuthMessage(chain);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+  const encryptedKey = (await window.litNodeClient.saveEncryptionKey({
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    accessControlConditions,
+    symmetricKey,
+    authSig,
+    chain,
+  })) as Uint8Array;
+
+  return encryptedKey;
 }
 
 // example conditions for users that at least have 1 token to decrypt a message
@@ -70,8 +101,6 @@ export async function encryptSaveMessage(
 
   const authSig = await checkAndSignAuthMessage(chain);
 
-  // const chain = 'rinkeby';
-
   const { encryptedSymmetricKey, symmetricKey, encryptedString } =
     await encryptString(authSig, accessControlConditions, chain, message);
 
@@ -84,6 +113,17 @@ export async function encryptSaveMessage(
   // encryptedStringG = encryptedString;
 
   return { encryptedSymmetricKey, symmetricKey, encryptedString };
+}
+
+export async function zipEncryptSaveFiles(
+  accessControlConditions,
+  chain,
+  files
+) {
+  const authSig = await checkAndSignAuthMessage(chain);
+
+  const { encryptedSymmetricKey, symmetricKey, encryptedString } =
+    await zip(authSig, accessControlConditions, chain, message);
 }
 
 // Function to decrypt the message, you need the conditions to decrypt,  the
