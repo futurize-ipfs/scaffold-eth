@@ -63,7 +63,8 @@ export async function saveEncryptionKey(
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
   const encryptedKey = (await window.litNodeClient.saveEncryptionKey({
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    accessControlConditions,
+    evmContractConditions: accessControlConditions,
+    // accessControlConditions,
     symmetricKey,
     authSig,
     chain,
@@ -128,6 +129,27 @@ export async function zipEncryptSaveFiles(
 
 // Function to decrypt the message, you need the conditions to decrypt,  the
 //  results of the encryptSaveMessage (encryptedSymmetricKey,encryptedString) and the chain
+
+export async function decryptZip(
+  accessControlConditions,
+  encryptedSymmetricKey,
+  encryptedZipBlob,
+  chain) {
+
+  const authSig = await checkAndSignAuthMessage(chain);
+
+  const symmetricKey = await window.litNodeClient.getEncryptionKey({
+    evmContractConditions: accessControlConditions,
+    toDecrypt: encryptedSymmetricKey,
+    chain,
+    authSig,
+  });
+
+  const decryptedFiles = await LitJsSdk.decryptZip(encryptedZipBlob, symmetricKey);
+
+  return decryptedFiles;
+}
+
 
 export async function decryptMessage(
   accessControlConditions,

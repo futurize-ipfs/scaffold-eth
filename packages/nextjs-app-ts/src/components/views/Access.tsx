@@ -38,15 +38,16 @@ export const Access: FC<AccessProps> = (props) => {
 
   const ethersAppContext = useEthersAppContext();
 
-  const accessTests = useAppContracts('AccessTests', ethersAppContext.chainId);
+  const FuturizeACL = useAppContracts('FuturizeACL', ethersAppContext.chainId);
 
   const [encryptedMessage, setEncryptedMessage] = useState();
+
 
   const [encryptedSymmetricKey, setEncryptedSymmetricKey] = useState('loading...');
 
   const [newEncryptedString, setNewEncryptedString] = useState('loading...');
 
-  const [newSymmetricKeyString, setNewSymmetricKeyString] = useState('loading...');
+  const [newCID, setNewCID] = useState('loading...');
 
   const [myAddress] = useSignerAddress(ethersAppContext.signer);
 
@@ -76,8 +77,8 @@ export const Access: FC<AccessProps> = (props) => {
   // Here we define how the conditions to access the message
   let accessControlConditions = [
     {
-      //contractAddress: deployedContractsJson[TARGET_NETWORK_INFO.chainId.toString()][0].contracts.FuturizeACL.address,
-      contractAddress: '0x0',
+      contractAddress: deployedContractsJson[TARGET_NETWORK_INFO.chainId.toString()][0].contracts.FuturizeACL.address,
+      // contractAddress: '0x0',
       functionName: 'hasAccess',
       functionParams: ['IPFSCID_CHANGEME', ':userAddress'],
       functionAbi: {
@@ -96,9 +97,9 @@ export const Access: FC<AccessProps> = (props) => {
         name: 'hasAccess',
         outputs: [
           {
-            internalType: 'bool',
+            internalType: 'uint256',
             name: '',
-            type: 'bool',
+            type: 'uint256',
           },
         ],
         stateMutability: 'view',
@@ -107,23 +108,16 @@ export const Access: FC<AccessProps> = (props) => {
       chain,
       returnValueTest: {
         key: '',
-        comparator: '==',
-        value: 'true',
+        comparator: '>',
+        value: '0',
       },
     },
   ];
 
   async function uploadAndEncrypt(): Promise<void> {
-    // ---- Saving to IPFS ----
 
-    // Here we need to save the recipient address on chain
-    // This address will be able to decrypt the message
-    // We need to save the encrypted message on IPFS
-    // We also need to save the encryptedSimmetricKey to IPFS?
-    // Web3Storage here
 
-    // ---- Using Lit Protocol to encrypt ----
-    // We use the accessControlConditions that are also going to be transacted in the following lines of code
+
     if (!selectedFiles) {
       setUploadState('No files selected!');
       return;
@@ -132,12 +126,16 @@ export const Access: FC<AccessProps> = (props) => {
     const { encryptedZip, symmetricKey } = await LitProtocol.zipEncryptFiles(Array.from(selectedFiles));
     setUploadState('Uploading your files to IPFS...');
     const rootCid = await client.put([new File([encryptedZip], 'encrypted_zip.bin')]);
-    accessControlConditions[0].functionParams[0] = rootCid;
+
+
+    accessControlConditions[0].functionParams[0] = "0x" + CID.parse(rootCid).toString(base16.encoder).slice(1);
+
+    console.log("accessControlConditions declaration", accessControlConditions)
     setUploadState('Claiming file ownership on chain...');
-    console.log('writeContracts', writeContracts);
     await writeContracts.FuturizeACL.createFile(CID.parse(rootCid).bytes);
     setUploadState('Encrypting file encryption key...');
     const encryptedKey = await LitProtocol.saveEncryptionKey(symmetricKey, chain, accessControlConditions);
+
     setUploadState('Uploading encryption key to IPFS...');
     const textFileForEncryptedFileCid = new File(
       [new Blob([rootCid.toString()], { type: 'text/plain' })],
@@ -151,37 +149,13 @@ export const Access: FC<AccessProps> = (props) => {
     const hexCid = CID.parse(rootCid).toString(base16.encoder);
     setUploadState(`Upload successful! CID: ${keyCid} Hex CID: ${hexCid}`);
 
-    // ---- Saving on chain the contracts that can access the message ----
 
-    // We call the Access contract so our recipient address has the condition to access the message
-
-    // tx(writeContracts.AccessTests.giveAccess(newAddress));
-
-    // ---- SONR Blockchain ----
-
-    // Here we save the signatures then we use our Eth smart contract to emit events with these
-    // signatures
   }
 
-  // const accessControlConditions = [
-  //     {
-  //         contractAddress: '0xEb6645593B1B6325f818ACFCA2Dc0D1f969DD54c',
-  //         standardContractType: 'ERC721',
-  //         chain,
-  //         method: 'balanceOf',
-  //         parameters: [
-  //             ':userAddress'
-  //         ],
-  //         returnValueTest: {
-  //             comparator: '>',
-  //             value: '0'
-  //         }
-  //     }
-  // ]
 
   return (
     <>
-      <div style={{ border: '1px solid #cccccc', padding: 16, width: 400, margin: 'auto', marginTop: 64 }}>
+      <div style={{ border: '1px solid #cccccc', padding: 16, width: 800, margin: 'auto', marginTop: 64 }}>
         <h2>Encrypt and share files:</h2>
         <Divider />
         <h4>Files:</h4>
@@ -192,71 +166,81 @@ export const Access: FC<AccessProps> = (props) => {
           onClick={(): void => {
             void uploadAndEncrypt();
           }}>
-          Encrypt Message!
+          Encrypt File!
         </Button>
         <Divider />
         Status: {uploadState}
       </div>
       <Divider />
       <Divider />
-      <div style={{ border: '1px solid #cccccc', padding: 16, width: 400, margin: 'auto', marginTop: 64 }}>
+      <div style={{ border: '1px solid #cccccc', padding: 16, width: 800, margin: 'auto', marginTop: 64 }}>
         <Divider />
-        <h2>Decrypt messages:</h2>
+        <h2>Decrypt Files:</h2>
 
         {/* {encryptedMessage} */}
         <Divider />
-        {encryptedSymmetricKey}
-
-        {}
-
-        <h4>Messages to decrypt: </h4>
-
-        {/* Here we should have the list of encrypted messages/Files with relation to the
-                logged Identity
-                Where do we ge these ? from events? 
-                Then a button to decrypt them 
-
-                // We then get from IPFS the encrypted Message and the encryptedSymmetricKey
-
-                decryptedMessage = LitProtocol.decryptMessage(accessControlConditions, encryptedSymmetricKey, encryptedString);
-                */}
-        <h4>Message to decrypt:</h4>
+        <h4>CID:</h4>
         <Input
           onChange={(e) => {
-            setNewEncryptedString(e.target.value);
-          }}
-        />
-
-        <h4>Encrypted Symmetric Key String: </h4>
-        <Input
-          onChange={(e) => {
-            setNewSymmetricKeyString(e.target.value);
+            setNewCID(e.target.value);
           }}
         />
 
         <Button
           style={{ marginTop: 8 }}
           onClick={async () => {
-            console.log('accessControlConditions', accessControlConditions);
 
-            console.log('#######', test);
 
-            const response = await LitProtocol.decryptMessage(
-              accessControlConditions,
-              newSymmetricKeyString,
-              encryptedMessage,
-              chain
-            );
 
-            console.log('Decrypted String', response);
+            const res = await client.get(newCID);
+
+            if (!res.ok) {
+              throw new Error(`failed to get ${newCID} - [${res.status}] ${res.statusText}`)
+            }
+
+            const filesZip = await res.files()
+            for (const file of filesZip) {
+              console.log(`${file.cid}`)
+            }
+
+            const encryptedFileCID = await filesZip[0].text();
+            const encryptedSymmetricKeyBuffer = await filesZip[1].arrayBuffer();
+
+            const encryptedSymmetricKeyArrayUint8Array = new Uint8Array(encryptedSymmetricKeyBuffer);
+
+
+            const encryptedSymmetricKeyString = await LitProtocol.uint8arrayToString(encryptedSymmetricKeyArrayUint8Array);
+
+
+            console.log("encryptedSymmetricKey", encryptedSymmetricKeyString);
+            console.log("encryptedFileCID", encryptedFileCID);
+
+
+            const resEncryptedFile = await client.get(encryptedFileCID);
+            const files = await resEncryptedFile?.files();
+
+            const encryptedFile = files[0];
+
+
+
+            accessControlConditions[0].functionParams[0] = "0x" + CID.parse(encryptedFileCID).toString(base16.encoder).slice(1);
+
+
+
+            const decryptedFiles = await LitProtocol.decryptZip(accessControlConditions, encryptedSymmetricKeyString, encryptedFile, chain);
+
+
+            console.log("DECRYPTED FILES", decryptedFiles);
+            // Then take the download the file?? 
+
           }}>
-          Decrypt Message!
+          Decrypt File!
         </Button>
       </div>
 
       <GenericContract
-        contractName="YourContract"
-        contract={accessTests}
+        contractName="Give Access on chain"
+        contract={FuturizeACL}
         mainnetAdaptor={scaffoldAppProviders.mainnetAdaptor}
         blockExplorer={scaffoldAppProviders.targetNetwork.blockExplorer}
       />
