@@ -163,7 +163,7 @@ export const Access: FC<AccessProps> = (props) => {
     );
     const keyCid = await client.put([textFileForEncryptedFileCid, encryptedKeyFile]);
     const hexCid = CID.parse(rootCid).toString(base16.encoder);
-    setUploadState(`Upload successful! CID: ${keyCid} Hex CID: ${hexCid}`);
+    setUploadState(`Upload successful! CID: ${keyCid}`);
 
 
   }
