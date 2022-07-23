@@ -49,6 +49,22 @@ export const Access: FC<AccessProps> = (props) => {
 
   const [newCID, setNewCID] = useState('loading...');
 
+
+  const [CIDAcess, setCIDAccess] = useState('loading...');
+  const [addressAccess, setAddressAccess] = useState('loading...');
+
+
+  const [CIDRevokeAccess, setCIDRevokeAccess] = useState('loading...');
+  const [revokeAddressAccess, setRevokeAddressAccess] = useState('loading...');
+
+  const [checkCid, setCheckCid] = useState('loading...');
+  const [checkAddress, setCheckAddress] = useState('loading...');
+
+  const [hasAccess, setHasAccess] = useState('0');
+
+
+
+
   const [myAddress] = useSignerAddress(ethersAppContext.signer);
 
   const [selectedFiles, setSelectedFiles] = useState(null as FileList | null);
@@ -207,13 +223,8 @@ export const Access: FC<AccessProps> = (props) => {
             const encryptedSymmetricKeyBuffer = await filesZip[1].arrayBuffer();
 
             const encryptedSymmetricKeyArrayUint8Array = new Uint8Array(encryptedSymmetricKeyBuffer);
-
-
             const encryptedSymmetricKeyString = await LitProtocol.uint8arrayToString(encryptedSymmetricKeyArrayUint8Array);
 
-
-            console.log("encryptedSymmetricKey", encryptedSymmetricKeyString);
-            console.log("encryptedFileCID", encryptedFileCID);
 
 
             const resEncryptedFile = await client.get(encryptedFileCID);
@@ -222,28 +233,185 @@ export const Access: FC<AccessProps> = (props) => {
             const encryptedFile = files[0];
 
 
-
             accessControlConditions[0].functionParams[0] = "0x" + CID.parse(encryptedFileCID).toString(base16.encoder).slice(1);
 
 
+            const decryptedZip = await LitProtocol.decryptZip(accessControlConditions, encryptedSymmetricKeyString, encryptedFile, chain);
 
-            const decryptedFiles = await LitProtocol.decryptZip(accessControlConditions, encryptedSymmetricKeyString, encryptedFile, chain);
+            console.log("decryptedZip", decryptedZip);
 
 
-            console.log("DECRYPTED FILES", decryptedFiles);
-            // Then take the download the file?? 
+            // const zipFile = new File(
+            //   [new Blob([decryptedZip], { type: 'application/zip' })],
+            //   'decryptedZip.zip'
+            // );
+
+            const blob = new Blob([decryptedZip]);
+
+            let csvURL = window.URL.createObjectURL(blob);
+            let tempLink = document.createElement('a');
+            tempLink.href = csvURL;
+            tempLink.setAttribute('download', 'decryptedZip.zip');
+            tempLink.click();
+
+            console.log("download successful");
+
+
+
 
           }}>
           Decrypt File!
         </Button>
       </div>
 
-      <GenericContract
-        contractName="Give Access on chain"
-        contract={FuturizeACL}
-        mainnetAdaptor={scaffoldAppProviders.mainnetAdaptor}
-        blockExplorer={scaffoldAppProviders.targetNetwork.blockExplorer}
-      />
+      <div style={{ border: '1px solid #cccccc', padding: 16, width: 800, margin: 'auto', marginTop: 64 }}>
+        <Divider />
+        <h2>Give Access:</h2>
+
+        {/* {encryptedMessage} */}
+        <Divider />
+        <h4>CID:</h4>
+        <Input
+          onChange={(e) => {
+            setCIDAccess(e.target.value);
+          }}
+        />
+
+        <Divider />
+        <h4>Address:</h4>
+        <Input
+          onChange={(e) => {
+            setAddressAccess(e.target.value);
+          }}
+        />
+
+        <Button
+          style={{ marginTop: 8 }}
+          onClick={async () => {
+
+            const res = await client.get(CIDAcess);
+
+            if (!res.ok) {
+              throw new Error(`failed to get ${CIDAcess} - [${res.status}] ${res.statusText}`)
+            }
+
+            const filesZip = await res.files()
+            for (const file of filesZip) {
+              console.log(`${file.cid}`)
+            }
+
+            const encryptedFileCID = await filesZip[0].text();
+
+            await writeContracts.FuturizeACL.giveAccess(CID.parse(encryptedFileCID).bytes, addressAccess);
+
+          }}>
+          Give Access!
+        </Button>
+      </div>
+
+      <div style={{ border: '1px solid #cccccc', padding: 16, width: 800, margin: 'auto', marginTop: 64 }}>
+        <Divider />
+        <h2>Revoke Access:</h2>
+
+        {/* {encryptedMessage} */}
+        <Divider />
+        <h4>CID:</h4>
+        <Input
+          onChange={(e) => {
+            setCIDRevokeAccess(e.target.value);
+          }}
+        />
+
+        <Divider />
+        <h4>Address:</h4>
+        <Input
+          onChange={(e) => {
+            setRevokeAddressAccess(e.target.value);
+          }}
+        />
+
+        <Button
+          style={{ marginTop: 8 }}
+          onClick={async () => {
+
+            const res = await client.get(CIDRevokeAccess);
+
+            if (!res.ok) {
+              throw new Error(`failed to get ${CIDRevokeAccess} - [${res.status}] ${res.statusText}`)
+            }
+
+            const filesZip = await res.files()
+            for (const file of filesZip) {
+              console.log(`${file.cid}`)
+            }
+
+            const encryptedFileCID = await filesZip[0].text();
+
+
+            await writeContracts.FuturizeACL.revokeAccess(CID.parse(encryptedFileCID).bytes, revokeAddressAccess);
+
+
+          }}>
+          Revoke Access!
+        </Button>
+      </div>
+
+      <div style={{ border: '1px solid #cccccc', padding: 16, width: 800, margin: 'auto', marginTop: 64 }}>
+        <Divider />
+        <h2>Check if user has access:</h2>
+
+        {/* {encryptedMessage} */}
+        <Divider />
+        <h4>CID:</h4>
+        <Input
+          onChange={(e) => {
+            setCheckCid(e.target.value);
+          }}
+        />
+
+        <Divider />
+        <h4>Address:</h4>
+        <Input
+          onChange={(e) => {
+            setCheckAddress(e.target.value);
+          }}
+        />
+        <Divider />
+
+        {hasAccess == "1" ? (
+          <h4>Has access</h4>
+        ) : (
+          <h4>No access</h4>
+        )
+        }
+        <Button
+          style={{ marginTop: 8 }}
+          onClick={async () => {
+
+            const res = await client.get(checkCid);
+
+            if (!res.ok) {
+              throw new Error(`failed to get ${checkCid} - [${res.status}] ${res.statusText}`)
+            }
+
+            const filesZip = await res.files()
+            for (const file of filesZip) {
+              console.log(`${file.cid}`)
+            }
+
+            const encryptedFileCID = await filesZip[0].text();
+
+
+            const resp = await writeContracts.FuturizeACL.hasAccess(CID.parse(encryptedFileCID).bytes, checkAddress);
+
+            setHasAccess(resp);
+
+          }}>
+          Check!
+        </Button>
+      </div>
+
+
     </>
   );
 };

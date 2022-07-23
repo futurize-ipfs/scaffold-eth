@@ -145,7 +145,7 @@ export async function decryptZip(
     authSig,
   });
 
-  const decryptedFiles = await LitJsSdk.decryptZip(encryptedZipBlob, symmetricKey);
+  const decryptedFiles = await LitJsSdk.decryptFile({ file: encryptedZipBlob, symmetricKey });
 
   return decryptedFiles;
 }
