@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "yarn build:anttheme && next build",
+    "export": "yarn build:anttheme && next build && next export",
     "start": "next start",
     "lint:next": "next lint",
     "lint": "eslint --config ./.eslintrc.js --ignore-path ./.eslintignore ./src",
@@ -16,7 +17,8 @@
     "format:check": "yarn prettier -c ./src ",
     "dev:link:components": "yalc link eth-components",
     "dev:link:hooks": "yalc link eth-hooks",
-    "dev:unlink": "yalc remove eth-hooks && yalc remove eth-components"
+    "dev:unlink": "yalc remove eth-hooks && yalc remove eth-components",
+    "surge": "surge ./out"
   },
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
